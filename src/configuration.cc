@@ -164,6 +164,7 @@ void Config::InitOtherParams() {
     // give a prefix instead of specify the output name one by one...
     // this would allow outputing to a directory and you can always override
     // these values
+    output_dir = reader.GetInteger("other", "output_dir", "./");
     if (!DirExist(output_dir)) {
         std::cout << "WARNING: Output directory " << output_dir
                   << " not exists! Using current directory for output!"
