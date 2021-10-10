@@ -46,3 +46,6 @@ release
 
 # IDEs / Editors
 .vscode/
+
+# script output
+*.pdf
