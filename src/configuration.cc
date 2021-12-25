@@ -44,9 +44,19 @@ Address Config::AddressMapping(uint64_t hex_addr) const {
 void Config::CalculateSize() {
     // calculate rank and re-calculate channel_size
     devices_per_rank = bus_width / device_width;
+    std::cout << "devices_per_rank: " << devices_per_rank << " "
+              << "bus_width: " << bus_width << " "
+              << "device_width: " << device_width << " "
+              << std::endl;
     int page_size = columns * device_width / 8;  // page size in bytes
-    int megs_per_bank = page_size * (rows / 1024) / 1024;
+    std::cout << "page_size: " << page_size << " "
+              << "columns: " << columns << std::endl;
+    int megs_per_bank = page_size * rows / 1024 / 1024;
+    std::cout << "megs_per_bank: " << megs_per_bank << " "
+              << "rows: " << rows << std::endl;
     int megs_per_rank = megs_per_bank * banks * devices_per_rank;
+    std::cout << "megs_per_rank: " << megs_per_rank << " "
+              << "banks: " << banks << std::endl;
 
     if (megs_per_rank > channel_size) {
         std::cout << "WARNING: Cannot create memory system of size "
@@ -57,7 +67,9 @@ void Config::CalculateSize() {
         channel_size = megs_per_rank;
     } else {
         ranks = channel_size / megs_per_rank;
+        std::cout << "ranks: " << ranks << std::endl;
         channel_size = ranks * megs_per_rank;
+        std::cout << "channel_size: " << channel_size << std::endl;
     }
     return;
 }
