@@ -22,6 +22,9 @@ Controller::Controller(int channel, const Config &config, const Timing &timing)
       thermal_calc_(thermal_calc),
 #endif  // THERMAL
       is_unified_queue_(config.unified_queue),
+      enable_dca_(config.enable_dca),
+      low_thres_(config.low_thres),
+      high_thres_(config.high_thres),
       row_buf_policy_(config.row_buf_policy == "CLOSE_PAGE"
                           ? RowBufPolicy::CLOSE_PAGE
                           : RowBufPolicy::OPEN_PAGE),
@@ -198,8 +201,9 @@ void Controller::ScheduleTransaction() {
     // determine whether to schedule read or write
     if (write_draining_ == 0 && !is_unified_queue_) {
         // we basically have a upper and lower threshold for write buffer
-        if ((write_buffer_.size() >= write_buffer_.capacity()) ||
-            (write_buffer_.size() > 8 && cmd_queue_.QueueEmpty())) {
+        if ((write_buffer_.size() >= write_buffer_.capacity() * high_thres_) ||
+            (write_buffer_.size() > write_buffer_.capacity() * low_thres_ &&
+             cmd_queue_.QueueEmpty())) {
             write_draining_ = write_buffer_.size();
         }
     }
@@ -208,6 +212,27 @@ void Controller::ScheduleTransaction() {
         is_unified_queue_ ? unified_queue_
                           : write_draining_ > 0 ? write_buffer_ : read_queue_;
     for (auto it = queue.begin(); it != queue.end(); it++) {
+        if (!enable_dca_ || it->priority) {
+            auto cmd = TransToCommand(*it);
+            if (cmd_queue_.WillAcceptCommand(cmd.Rank(), cmd.Bankgroup(),
+                                             cmd.Bank())) {
+                if (!is_unified_queue_ && cmd.IsWrite()) {
+                    // Enforce R->W dependency
+                    if (pending_rd_q_.count(it->addr) > 0) {
+                        write_draining_ = 0;
+                        return;
+                    }
+                    write_draining_ -= 1;
+                }
+                cmd_queue_.AddCommand(cmd);
+                queue.erase(it);
+                return;
+            }
+        }
+    }
+
+    /** if there is no priority read access.. */
+    for (auto it = queue.begin(); it != queue.end(); it++) {
         auto cmd = TransToCommand(*it);
         if (cmd_queue_.WillAcceptCommand(cmd.Rank(), cmd.Bankgroup(),
                                          cmd.Bank())) {
@@ -215,13 +240,13 @@ void Controller::ScheduleTransaction() {
                 // Enforce R->W dependency
                 if (pending_rd_q_.count(it->addr) > 0) {
                     write_draining_ = 0;
-                    break;
+                    return;
                 }
                 write_draining_ -= 1;
             }
             cmd_queue_.AddCommand(cmd);
             queue.erase(it);
-            break;
+            return;
         }
     }
 }

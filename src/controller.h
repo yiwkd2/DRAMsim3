@@ -64,6 +64,13 @@ class Controller {
     // completed transactions
     std::vector<Transaction> return_queue_;
 
+    // DCA
+    bool enable_dca_;
+
+    // write queue threshold
+    double low_thres_;
+    double high_thres_;
+
     // row buffer policy
     RowBufPolicy row_buf_policy_;
 

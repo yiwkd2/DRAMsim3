@@ -237,7 +237,10 @@ void Config::InitSystemParams() {
     cmd_queue_size = GetInteger("system", "cmd_queue_size", 16);
     trans_queue_size = GetInteger("system", "trans_queue_size", 32);
     unified_queue = reader.GetBoolean("system", "unified_queue", false);
-    write_buf_size = GetInteger("system", "write_buf_size", 16);
+    enable_dca = reader.GetBoolean("system", "enable_dca", false); 
+    low_thres = reader.GetReal("system", "low_thres", 0.5);
+    high_thres = reader.GetReal("system", "high_thres", 0.85);
+    
     std::string ref_policy =
         reader.Get("system", "refresh_policy", "RANK_LEVEL_STAGGERED");
     if (ref_policy == "RANK_LEVEL_SIMULTANEOUS") {
@@ -261,6 +264,8 @@ void Config::InitSystemParams() {
 
 #ifdef THERMAL
 void Config::InitThermalParams() {
+    std::cout << "InitThermalParams" << std::endl;
+
     const auto& reader = *reader_;
     const_logic_power = reader.GetReal("thermal", "const_logic_power", 5.0);
     mat_dim_x = GetInteger("thermal", "mat_dim_x", 512);

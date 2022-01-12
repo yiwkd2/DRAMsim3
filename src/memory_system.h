@@ -28,7 +28,7 @@ class MemorySystem {
     void ResetStats();
 
     bool WillAcceptTransaction(uint64_t hex_addr, bool is_write) const;
-    bool AddTransaction(uint64_t hex_addr, bool is_write);
+    bool AddTransaction(uint64_t hex_addr, bool is_write, bool priority);
 
    private:
     // These have to be pointers because Gem5 will try to push this object
