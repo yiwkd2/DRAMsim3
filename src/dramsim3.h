@@ -23,7 +23,11 @@ class MemorySystem {
     void PrintStats() const;
     void ResetStats();
 
+    int GetChannel(uint64_t hex_addr) const;
+    int GetNumChannel() const;
+
     bool WillAcceptTransaction(uint64_t hex_addr, bool is_write) const;
+    bool WillAcceptTransactionByChannel(int channel_id, bool is_write) const;
     bool AddTransaction(uint64_t hex_addr, bool is_write, bool priority);
 };
 

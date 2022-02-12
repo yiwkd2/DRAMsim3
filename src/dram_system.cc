@@ -6,7 +6,7 @@ namespace dramsim3 {
 
 // alternative way is to assign the id in constructor but this is less
 // destructive
-int BaseDRAMSystem::total_channels_ = 0;
+//int BaseDRAMSystem::total_channels_ = 0;
 
 BaseDRAMSystem::BaseDRAMSystem(Config &config, const std::string &output_dir,
                                std::function<void(uint64_t)> read_callback,
@@ -16,11 +16,12 @@ BaseDRAMSystem::BaseDRAMSystem(Config &config, const std::string &output_dir,
       last_req_clk_(0),
       config_(config),
       timing_(config_),
+      total_channels_(config.channels),
 #ifdef THERMAL
       thermal_calc_(config_),
 #endif  // THERMAL
       clk_(0) {
-    total_channels_ += config_.channels;
+    //total_channels_ += config_.channels;
 
 #ifdef ADDR_TRACE
     std::string addr_trace_name = config_.output_prefix + "addr.trace";
@@ -31,6 +32,10 @@ BaseDRAMSystem::BaseDRAMSystem(Config &config, const std::string &output_dir,
 int BaseDRAMSystem::GetChannel(uint64_t hex_addr) const {
     hex_addr >>= config_.shift_bits;
     return (hex_addr >> config_.ch_pos) & config_.ch_mask;
+}
+
+int BaseDRAMSystem::GetNumChannel() const {
+    return total_channels_;
 }
 
 void BaseDRAMSystem::PrintEpochStats() {
@@ -92,6 +97,12 @@ void BaseDRAMSystem::RegisterCallbacks(
     read_callback_ = read_callback;
     write_callback_ = write_callback;
 }
+
+bool BaseDRAMSystem::WillAcceptTransactionByChannel(int channel_id,
+                                                     bool is_write) const {
+    return ctrls_[channel_id]->WillAcceptTransaction(0, is_write);
+}
+
 
 JedecDRAMSystem::JedecDRAMSystem(Config &config, const std::string &output_dir,
                                  std::function<void(uint64_t)> read_callback,

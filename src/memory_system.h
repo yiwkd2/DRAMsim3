@@ -24,10 +24,13 @@ class MemorySystem {
     int GetBusBits() const;
     int GetBurstLength() const;
     int GetQueueSize() const;
+    int GetChannel(uint64_t hex_addr) const;
+    int GetNumChannel() const;
     void PrintStats() const;
     void ResetStats();
 
     bool WillAcceptTransaction(uint64_t hex_addr, bool is_write) const;
+    bool WillAcceptTransactionByChannel(int channel_id, bool is_write) const;
     bool AddTransaction(uint64_t hex_addr, bool is_write, bool priority);
 
    private:

@@ -30,19 +30,22 @@ class BaseDRAMSystem {
 
     virtual bool WillAcceptTransaction(uint64_t hex_addr,
                                        bool is_write) const = 0;
+    bool WillAcceptTransactionByChannel(int channel_id,
+                                        bool is_write) const;
     virtual bool AddTransaction(uint64_t hex_addr, bool is_write,
                                 bool priority) = 0;
     virtual void ClockTick() = 0;
     int GetChannel(uint64_t hex_addr) const;
+    int GetNumChannel() const;
 
     std::function<void(uint64_t req_id)> read_callback_, write_callback_;
-    static int total_channels_;
 
    protected:
     uint64_t id_;
     uint64_t last_req_clk_;
     Config &config_;
     Timing timing_;
+    int total_channels_; /** original DRAMsim3 has this as public, static */
     uint64_t parallel_cycles_;
     uint64_t serial_cycles_;
 

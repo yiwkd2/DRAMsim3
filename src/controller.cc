@@ -217,11 +217,14 @@ void Controller::ScheduleTransaction() {
             if (cmd_queue_.WillAcceptCommand(cmd.Rank(), cmd.Bankgroup(),
                                              cmd.Bank())) {
                 if (!is_unified_queue_ && cmd.IsWrite()) {
+                    /*
                     // Enforce R->W dependency
                     if (pending_rd_q_.count(it->addr) > 0) {
                         write_draining_ = 0;
+                        ScheduleReadTransaction();
                         return;
                     }
+                    */
                     write_draining_ -= 1;
                 }
                 cmd_queue_.AddCommand(cmd);
@@ -237,11 +240,14 @@ void Controller::ScheduleTransaction() {
         if (cmd_queue_.WillAcceptCommand(cmd.Rank(), cmd.Bankgroup(),
                                          cmd.Bank())) {
             if (!is_unified_queue_ && cmd.IsWrite()) {
+                /*
                 // Enforce R->W dependency
                 if (pending_rd_q_.count(it->addr) > 0) {
                     write_draining_ = 0;
+                    ScheduleReadTransaction();
                     return;
                 }
+                */
                 write_draining_ -= 1;
             }
             cmd_queue_.AddCommand(cmd);
@@ -249,6 +255,19 @@ void Controller::ScheduleTransaction() {
             return;
         }
     }
+}
+
+void Controller::ScheduleReadTransaction() {
+    for (auto it = read_queue_.begin(); it != read_queue_.end(); it++) {
+        auto cmd = TransToCommand(*it);
+        if (cmd_queue_.WillAcceptCommand(cmd.Rank(), cmd.Bankgroup(),
+                                         cmd.Bank())) {
+            cmd_queue_.AddCommand(cmd);
+            read_queue_.erase(it);
+            return;
+        }
+    }
+    std::cout << "Cannot schedule all transactions in read queue" << std::endl;
 }
 
 void Controller::IssueCommand(const Command &cmd) {

@@ -31,6 +31,14 @@ int MemorySystem::GetBurstLength() const { return config_->BL; }
 
 int MemorySystem::GetQueueSize() const { return config_->trans_queue_size; }
 
+int MemorySystem::GetChannel(uint64_t hex_addr) const {
+    return dram_system_->GetChannel(hex_addr);
+}
+
+int MemorySystem::GetNumChannel() const {
+    return dram_system_->GetNumChannel();
+}
+
 void MemorySystem::RegisterCallbacks(
     std::function<void(uint64_t)> read_callback,
     std::function<void(uint64_t)> write_callback) {
@@ -40,6 +48,11 @@ void MemorySystem::RegisterCallbacks(
 bool MemorySystem::WillAcceptTransaction(uint64_t hex_addr,
                                          bool is_write) const {
     return dram_system_->WillAcceptTransaction(hex_addr, is_write);
+}
+
+bool MemorySystem::WillAcceptTransactionByChannel(int channel_id,
+        bool is_write) const {
+    return dram_system_->WillAcceptTransactionByChannel(channel_id, is_write);
 }
 
 bool MemorySystem::AddTransaction(uint64_t hex_addr, bool is_write,
