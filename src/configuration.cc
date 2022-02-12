@@ -51,7 +51,7 @@ void Config::CalculateSize() {
     int page_size = columns * device_width / 8;  // page size in bytes
     std::cout << "page_size: " << page_size << " "
               << "columns: " << columns << std::endl;
-    int megs_per_bank = page_size * rows / 1024 / 1024;
+    float megs_per_bank = page_size * (float) rows / 1024 / 1024;
     std::cout << "megs_per_bank: " << megs_per_bank << " "
               << "rows: " << rows << std::endl;
     int megs_per_rank = megs_per_bank * banks * devices_per_rank;
