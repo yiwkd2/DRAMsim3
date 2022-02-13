@@ -3,6 +3,7 @@
 
 #include <unordered_set>
 #include <vector>
+#include <iostream>
 #include "channel_state.h"
 #include "common.h"
 #include "configuration.h"
@@ -55,6 +56,8 @@ class CommandQueue {
     size_t queue_size_;
     int queue_idx_;
     uint64_t clk_;
+
+    const int channel_id_;
 };
 
 }  // namespace dramsim3

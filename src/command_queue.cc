@@ -12,7 +12,7 @@ CommandQueue::CommandQueue(int channel_id, const Config& config,
       is_in_ref_(false),
       queue_size_(static_cast<size_t>(config_.cmd_queue_size)),
       queue_idx_(0),
-      clk_(0) {
+      clk_(0), channel_id_(channel_id) {
     if (config_.queue_structure == "PER_BANK") {
         queue_structure_ = QueueStructure::PER_BANK;
         num_queues_ = config_.banks * config_.ranks;
@@ -199,6 +199,9 @@ void CommandQueue::EraseRWCommand(const Command& cmd) {
     auto& queue = GetQueue(cmd.Rank(), cmd.Bankgroup(), cmd.Bank());
     for (auto cmd_it = queue.begin(); cmd_it != queue.end(); cmd_it++) {
         if (cmd.hex_addr == cmd_it->hex_addr && cmd.cmd_type == cmd_it->cmd_type) {
+#ifdef DEBUG_GEM5
+            std::cout << channel_id_ << ", Erased from queue, addr = " << std::hex << cmd.hex_addr << std::endl;
+#endif
             queue.erase(cmd_it);
             return;
         }

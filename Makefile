@@ -10,7 +10,7 @@ ARGS_LIB_DIR=ext/headers
 
 INC=-Isrc/ -I$(FMT_LIB_DIR) -I$(INI_LIB_DIR) -I$(ARGS_LIB_DIR) -I$(JSON_LIB_DIR)
 CXXFLAGS=-Wall -O3 -fPIC -std=c++11 $(INC) -DFMT_HEADER_ONLY=1
-#CXXFLAGS=-Wall -g3 -fPIC -std=c++11 $(INC) -DFMT_HEADER_ONLY=1
+#CXXFLAGS=-Wall -g3 -fPIC -std=c++11 $(INC) -DFMT_HEADER_ONLY=1 -DDEBUG_GEM5
 
 LIB_NAME=libdramsim3.so
 EXE_NAME=dramsim3main.out

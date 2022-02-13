@@ -1,5 +1,7 @@
 #include "configuration.h"
 
+#include <iostream>
+#include <bitset>
 #include <vector>
 
 #ifdef THERMAL
@@ -418,6 +420,12 @@ void Config::SetAddressMapping() {
     ba_mask = (1 << field_widths.at("ba")) - 1;
     ro_mask = (1 << field_widths.at("ro")) - 1;
     co_mask = (1 << field_widths.at("co")) - 1;
+    std::cout << "ch_mask: " << std::bitset<48>(ch_mask << (shift_bits + ch_pos)) << std::endl;
+    std::cout << "ra_mask: " << std::bitset<48>(ra_mask << (shift_bits + ra_pos)) << std::endl;
+    std::cout << "bg_mask: " << std::bitset<48>(bg_mask << (shift_bits + bg_pos)) << std::endl;
+    std::cout << "ba_mask: " << std::bitset<48>(ba_mask << (shift_bits + ba_pos)) << std::endl;
+    std::cout << "ro_mask: " << std::bitset<48>(ro_mask << (shift_bits + ro_pos)) << std::endl;
+    std::cout << "co_mask: " << std::bitset<48>(co_mask << (shift_bits + co_pos)) << std::endl;
 }
 
 }  // namespace dramsim3

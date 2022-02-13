@@ -90,6 +90,11 @@ void Controller::ClockTick() {
                 if (second_cmd.IsReadWrite() != cmd.IsReadWrite()) {
                     IssueCommand(second_cmd);
                     simple_stats_.Increment("hbm_dual_cmds");
+                } else {
+#ifdef DEBUG_GEM5
+                    std::cout << channel_id_ << ", hbm_dual_cmd fail, addr = " << std::hex << second_cmd.hex_addr << std::endl;
+#endif
+                    exit(1);
                 }
             }
         }
@@ -186,12 +191,22 @@ bool Controller::AddTransaction(Transaction trans) {
             return true;
         }
         pending_rd_q_.insert(std::make_pair(trans.addr, trans));
+#ifdef DEBUG_GEM5
+        std::cout << channel_id_ << ", insert to pending_rd_q, addr = %x" << std::hex << trans.addr << std::endl;
+#endif
         if (pending_rd_q_.count(trans.addr) == 1) {
             if (is_unified_queue_) {
                 unified_queue_.push_back(trans);
             } else {
                 read_queue_.push_back(trans);
+#ifdef DEBUG_GEM5
+                std::cout << channel_id_ << ", insert to read_queue_, addr = %x" << std::hex << trans.addr << std::endl;
+#endif
             }
+        } else {
+#ifdef DEBUG_GEM5
+            std::cout << channel_id_ << ", pending_rd_q_.count(" << std::hex << trans.addr << ") = " << std::dec << pending_rd_q_.count(trans.addr) << std::endl;
+#endif
         }
         return true;
     }
@@ -217,16 +232,17 @@ void Controller::ScheduleTransaction() {
             if (cmd_queue_.WillAcceptCommand(cmd.Rank(), cmd.Bankgroup(),
                                              cmd.Bank())) {
                 if (!is_unified_queue_ && cmd.IsWrite()) {
-                    /*
                     // Enforce R->W dependency
                     if (pending_rd_q_.count(it->addr) > 0) {
                         write_draining_ = 0;
                         ScheduleReadTransaction();
                         return;
                     }
-                    */
                     write_draining_ -= 1;
                 }
+#ifdef DEBUG_GEM5
+                std::cout << channel_id_ << ", schedule addr = " << std::hex << it->addr << "isWrite = " << cmd.IsWrite() << std::endl;
+#endif
                 cmd_queue_.AddCommand(cmd);
                 queue.erase(it);
                 return;
@@ -240,16 +256,17 @@ void Controller::ScheduleTransaction() {
         if (cmd_queue_.WillAcceptCommand(cmd.Rank(), cmd.Bankgroup(),
                                          cmd.Bank())) {
             if (!is_unified_queue_ && cmd.IsWrite()) {
-                /*
                 // Enforce R->W dependency
                 if (pending_rd_q_.count(it->addr) > 0) {
                     write_draining_ = 0;
                     ScheduleReadTransaction();
                     return;
                 }
-                */
                 write_draining_ -= 1;
             }
+#ifdef DEBUG_GEM5
+            std::cout << channel_id_ << ", schedule addr = " << std::hex << it->addr << "isWrite = " << cmd.IsWrite() << std::endl;
+#endif
             cmd_queue_.AddCommand(cmd);
             queue.erase(it);
             return;
@@ -262,12 +279,17 @@ void Controller::ScheduleReadTransaction() {
         auto cmd = TransToCommand(*it);
         if (cmd_queue_.WillAcceptCommand(cmd.Rank(), cmd.Bankgroup(),
                                          cmd.Bank())) {
+#ifdef DEBUG_GEM5
+            std::cout << channel_id_ << ", (ScheduleReadTransaction) schedule read transaction, addr = " << std::hex << it->addr << std::endl;
+#endif
             cmd_queue_.AddCommand(cmd);
             read_queue_.erase(it);
             return;
         }
     }
-    std::cout << "Cannot schedule all transactions in read queue" << std::endl;
+#ifdef DEBUG_GEM5
+    std::cout << channel_id_ << ", (ScheduleReadTransaction) cannot schedule read transaction here" << std::endl;
+#endif
 }
 
 void Controller::IssueCommand(const Command &cmd) {
@@ -280,6 +302,9 @@ void Controller::IssueCommand(const Command &cmd) {
 #endif  // THERMAL
     // if read/write, update pending queue and return queue
     if (cmd.IsRead()) {
+#ifdef DEBUG_GEM5
+        std::cout << channel_id_ << ", IssueCommand (Read), addr = " << std::hex << cmd.hex_addr << std::endl;
+#endif
         auto num_reads = pending_rd_q_.count(cmd.hex_addr);
         if (num_reads == 0) {
             std::cerr << cmd.hex_addr << " not in read queue! " << std::endl;
@@ -289,11 +314,18 @@ void Controller::IssueCommand(const Command &cmd) {
         while (num_reads > 0) {
             auto it = pending_rd_q_.find(cmd.hex_addr);
             it->second.complete_cycle = clk_ + config_.read_delay;
+#ifdef DEBUG_GEM5
+            std::cout << channel_id_ << ", insert to return_queue_, addr = " << std::hex << cmd.hex_addr <<
+                " , delay = " << std::dec << config_.read_delay << std::endl;
+#endif
             return_queue_.push_back(it->second);
             pending_rd_q_.erase(it);
             num_reads -= 1;
         }
     } else if (cmd.IsWrite()) {
+#ifdef DEBUG_GEM5
+        std::cout << channel_id_ << ", IssueCommand (Write), addr = " << std::hex << cmd.hex_addr << std::endl;
+#endif
         // there should be only 1 write to the same location at a time
         auto it = pending_wr_q_.find(cmd.hex_addr);
         if (it == pending_wr_q_.end()) {
