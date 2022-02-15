@@ -232,14 +232,12 @@ void Controller::ScheduleTransaction() {
             if (cmd_queue_.WillAcceptCommand(cmd.Rank(), cmd.Bankgroup(),
                                              cmd.Bank())) {
                 if (!is_unified_queue_ && cmd.IsWrite()) {
-                    /*
                     // Enforce R->W dependency
                     if (pending_rd_q_.count(it->addr) > 0) {
                         write_draining_ = 0;
                         ScheduleReadTransaction();
                         return;
                     }
-                    */
                     write_draining_ -= 1;
                 }
 #ifdef DEBUG_GEM5
@@ -258,14 +256,12 @@ void Controller::ScheduleTransaction() {
         if (cmd_queue_.WillAcceptCommand(cmd.Rank(), cmd.Bankgroup(),
                                          cmd.Bank())) {
             if (!is_unified_queue_ && cmd.IsWrite()) {
-                /*
                 // Enforce R->W dependency
                 if (pending_rd_q_.count(it->addr) > 0) {
                     write_draining_ = 0;
                     ScheduleReadTransaction();
                     return;
                 }
-                */
                 write_draining_ -= 1;
             }
 #ifdef DEBUG_GEM5
