@@ -24,6 +24,9 @@ class MemorySystem {
     void ResetStats();
 
     int GetChannel(uint64_t hex_addr) const;
+    int GetRank(uint64_t hex_addr) const;
+    int GetBankGroup(uint64_t hex_addr) const;
+    int GetBank(uint64_t hex_addr) const;
     int GetNumChannel() const;
 
     bool WillAcceptTransaction(uint64_t hex_addr, bool is_write) const;

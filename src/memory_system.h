@@ -25,6 +25,9 @@ class MemorySystem {
     int GetBurstLength() const;
     int GetQueueSize() const;
     int GetChannel(uint64_t hex_addr) const;
+    int GetRank(uint64_t hex_addr) const;
+    int GetBankGroup(uint64_t hex_addr) const;
+    int GetBank(uint64_t hex_addr) const;
     int GetNumChannel() const;
     void PrintStats() const;
     void ResetStats();

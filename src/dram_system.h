@@ -36,6 +36,9 @@ class BaseDRAMSystem {
                                 bool priority) = 0;
     virtual void ClockTick() = 0;
     int GetChannel(uint64_t hex_addr) const;
+    int GetRank(uint64_t hex_addr) const;
+    int GetBankGroup(uint64_t hex_addr) const;
+    int GetBank(uint64_t hex_addr) const;
     int GetNumChannel() const;
 
     std::function<void(uint64_t req_id)> read_callback_, write_callback_;

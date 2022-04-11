@@ -35,6 +35,18 @@ int MemorySystem::GetChannel(uint64_t hex_addr) const {
     return dram_system_->GetChannel(hex_addr);
 }
 
+int MemorySystem::GetRank(uint64_t hex_addr) const {
+    return dram_system_->GetRank(hex_addr);
+}
+
+int MemorySystem::GetBankGroup(uint64_t hex_addr) const {
+    return dram_system_->GetBankGroupt(hex_addr);
+}
+
+int MemorySystem::GetBank(uint64_t hex_addr) const {
+    return dram_system_->GetBank(hex_addr);
+}
+
 int MemorySystem::GetNumChannel() const {
     return dram_system_->GetNumChannel();
 }

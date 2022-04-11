@@ -34,6 +34,21 @@ int BaseDRAMSystem::GetChannel(uint64_t hex_addr) const {
     return (hex_addr >> config_.ch_pos) & config_.ch_mask;
 }
 
+int BaseDRAMSystem::GetRank(uint64_t hex_addr) const {
+    hex_addr >>= config_.shift_bits;
+    return (hex_addr >> config_.ra_pos) & ra_mask;
+}
+
+int BaseDRAMSystem::GetBankGroup(uint64_t hex_addr) const {
+    hex_addr >>= config_.shift_bits;
+    return (hex_addr >> config_.bg_pos) & bg_mask;
+}
+
+int BaseDRAMSystem::GetBank(uint64_t hex_addr) const {
+    hex_addr >>= config_.shift_bits;
+    return (hex_addr >> config_.ba_pos) & ba_mask;
+}
+
 int BaseDRAMSystem::GetNumChannel() const {
     return total_channels_;
 }
