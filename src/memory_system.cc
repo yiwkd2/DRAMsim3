@@ -39,16 +39,20 @@ int MemorySystem::GetRank(uint64_t hex_addr) const {
     return dram_system_->GetRank(hex_addr);
 }
 
-int MemorySystem::GetBankGroup(uint64_t hex_addr) const {
-    return dram_system_->GetBankGroup(hex_addr);
-}
-
 int MemorySystem::GetBank(uint64_t hex_addr) const {
     return dram_system_->GetBank(hex_addr);
 }
 
 int MemorySystem::GetNumChannel() const {
     return dram_system_->GetNumChannel();
+}
+
+int MemorySystem::GetNumRank() const {
+    return dram_system_->GetNumRank();
+}
+
+int MemorySystem::GetNumBank() const {
+    return dram_system_->GetNumBank();
 }
 
 void MemorySystem::RegisterCallbacks(

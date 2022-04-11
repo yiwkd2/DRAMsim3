@@ -37,9 +37,10 @@ class BaseDRAMSystem {
     virtual void ClockTick() = 0;
     int GetChannel(uint64_t hex_addr) const;
     int GetRank(uint64_t hex_addr) const;
-    int GetBankGroup(uint64_t hex_addr) const;
     int GetBank(uint64_t hex_addr) const;
     int GetNumChannel() const;
+    int GetNumRank() const;
+    int GetNumBank() const;
 
     std::function<void(uint64_t req_id)> read_callback_, write_callback_;
 
@@ -49,6 +50,8 @@ class BaseDRAMSystem {
     Config &config_;
     Timing timing_;
     int total_channels_; /** original DRAMsim3 has this as public, static */
+    int total_ranks_;
+    int total_banks_;
     uint64_t parallel_cycles_;
     uint64_t serial_cycles_;
 

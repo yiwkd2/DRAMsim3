@@ -17,6 +17,8 @@ BaseDRAMSystem::BaseDRAMSystem(Config &config, const std::string &output_dir,
       config_(config),
       timing_(config_),
       total_channels_(config.channels),
+      total_ranks_(config.ranks),
+      total_banks_(config.banks),
 #ifdef THERMAL
       thermal_calc_(config_),
 #endif  // THERMAL
@@ -39,18 +41,24 @@ int BaseDRAMSystem::GetRank(uint64_t hex_addr) const {
     return (hex_addr >> config_.ra_pos) & config_.ra_mask;
 }
 
-int BaseDRAMSystem::GetBankGroup(uint64_t hex_addr) const {
-    hex_addr >>= config_.shift_bits;
-    return (hex_addr >> config_.bg_pos) & config_.bg_mask;
-}
-
 int BaseDRAMSystem::GetBank(uint64_t hex_addr) const {
     hex_addr >>= config_.shift_bits;
-    return (hex_addr >> config_.ba_pos) & config_.ba_mask;
+    int bg = (hex_addr >> config_.bg_pos) & config_.bg_mask;
+    int ba = (hex_addr >> config_.ba_pos) & config_.ba_mask;
+
+    return config_.banks_per_group * bg + ba;
 }
 
 int BaseDRAMSystem::GetNumChannel() const {
     return total_channels_;
+}
+
+int BaseDRAMSystem::GetNumRank() const {
+    return total_ranks_;
+}
+
+int BaseDRAMSystem::GetNumBank() const {
+    return total_banks_;
 }
 
 void BaseDRAMSystem::PrintEpochStats() {
