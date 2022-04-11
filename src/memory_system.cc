@@ -40,7 +40,7 @@ int MemorySystem::GetRank(uint64_t hex_addr) const {
 }
 
 int MemorySystem::GetBankGroup(uint64_t hex_addr) const {
-    return dram_system_->GetBankGroupt(hex_addr);
+    return dram_system_->GetBankGroup(hex_addr);
 }
 
 int MemorySystem::GetBank(uint64_t hex_addr) const {
