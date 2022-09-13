@@ -340,8 +340,7 @@ bool HMCMemorySystem::WillAcceptTransaction(uint64_t hex_addr,
     return insertable;
 }
 
-bool HMCMemorySystem::AddTransaction(uint64_t hex_addr, bool is_write,
-                                     bool priority) {
+bool HMCMemorySystem::AddTransaction(uint64_t hex_addr, bool is_write) {
     // to be compatible with other protocol we have this interface
     // when using this intreface the size of each transaction will be block_size
     HMCReqType req_type;

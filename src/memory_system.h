@@ -35,7 +35,7 @@ class MemorySystem {
 
     bool WillAcceptTransaction(uint64_t hex_addr, bool is_write) const;
     bool WillAcceptTransactionByChannel(int channel_id, bool is_write) const;
-    bool AddTransaction(uint64_t hex_addr, bool is_write, bool priority);
+    bool AddTransaction(uint64_t hex_addr, bool is_write);
 
    private:
     // These have to be pointers because Gem5 will try to push this object

@@ -106,23 +106,20 @@ struct Command {
 
 struct Transaction {
     Transaction() {}
-    Transaction(uint64_t addr, bool is_write, bool priority = false)
+    Transaction(uint64_t addr, bool is_write)
         : addr(addr),
           added_cycle(0),
           complete_cycle(0),
-          is_write(is_write),
-          priority(priority) {}
+          is_write(is_write) {}
     Transaction(const Transaction& tran)
         : addr(tran.addr),
           added_cycle(tran.added_cycle),
           complete_cycle(tran.complete_cycle),
-          is_write(tran.is_write),
-          priority(tran.priority) {}
+          is_write(tran.is_write) {}
     uint64_t addr;
     uint64_t added_cycle;
     uint64_t complete_cycle;
     bool is_write;
-    bool priority;
 
     friend std::ostream& operator<<(std::ostream& os, const Transaction& trans);
     friend std::istream& operator>>(std::istream& is, Transaction& trans);

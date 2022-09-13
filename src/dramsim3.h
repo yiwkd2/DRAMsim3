@@ -32,7 +32,7 @@ class MemorySystem {
 
     bool WillAcceptTransaction(uint64_t hex_addr, bool is_write) const;
     bool WillAcceptTransactionByChannel(int channel_id, bool is_write) const;
-    bool AddTransaction(uint64_t hex_addr, bool is_write, bool priority);
+    bool AddTransaction(uint64_t hex_addr, bool is_write);
 };
 
 MemorySystem* GetMemorySystem(const std::string &config_file, const std::string &output_dir,
