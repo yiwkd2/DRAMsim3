@@ -22,6 +22,7 @@ Controller::Controller(int channel, const Config &config, const Timing &timing)
       thermal_calc_(thermal_calc),
 #endif  // THERMAL
       is_unified_queue_(config.unified_queue),
+      enable_dca_(config.enable_dca),
       low_thres_(config.low_thres),
       high_thres_(config.high_thres),
       row_buf_policy_(config.row_buf_policy == "CLOSE_PAGE"
@@ -225,6 +226,31 @@ void Controller::ScheduleTransaction() {
     std::vector<Transaction> &queue =
         is_unified_queue_ ? unified_queue_
                           : write_draining_ > 0 ? write_buffer_ : read_queue_;
+    for (auto it = queue.begin(); it != queue.end(); it++) {
+        if (!enable_dca_ || it->priority) {
+            auto cmd = TransToCommand(*it);
+            if (cmd_queue_.WillAcceptCommand(cmd.Rank(), cmd.Bankgroup(),
+                                             cmd.Bank())) {
+                if (!is_unified_queue_ && cmd.IsWrite()) {
+                    // Enforce R->W dependency
+                    if (pending_rd_q_.count(it->addr) > 0) {
+                        write_draining_ = 0;
+                        ScheduleReadTransaction();
+                        return;
+                    }
+                    write_draining_ -= 1;
+                }
+#ifdef DEBUG_GEM5
+                std::cout << channel_id_ << ", schedule addr = " << std::hex << it->addr << "isWrite = " << cmd.IsWrite() << std::endl;
+#endif
+                cmd_queue_.AddCommand(cmd);
+                queue.erase(it);
+                return;
+            }
+        }
+    }
+
+    /** if there is no priority read access.. */
     for (auto it = queue.begin(); it != queue.end(); it++) {
         auto cmd = TransToCommand(*it);
         if (cmd_queue_.WillAcceptCommand(cmd.Rank(), cmd.Bankgroup(),

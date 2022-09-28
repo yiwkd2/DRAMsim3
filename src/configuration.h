@@ -128,6 +128,7 @@ class Config {
     int cmd_queue_size;
     bool unified_queue;
     int trans_queue_size;
+    bool enable_dca;
     double low_thres;
     double high_thres;
     bool enable_self_refresh;

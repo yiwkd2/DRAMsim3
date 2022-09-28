@@ -239,6 +239,7 @@ void Config::InitSystemParams() {
     cmd_queue_size = GetInteger("system", "cmd_queue_size", 16);
     trans_queue_size = GetInteger("system", "trans_queue_size", 32);
     unified_queue = reader.GetBoolean("system", "unified_queue", false);
+    enable_dca = reader.GetBoolean("system", "enable_dca", false); 
     low_thres = reader.GetReal("system", "low_thres", 0.5);
     high_thres = reader.GetReal("system", "high_thres", 0.85);
     

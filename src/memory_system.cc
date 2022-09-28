@@ -71,8 +71,9 @@ bool MemorySystem::WillAcceptTransactionByChannel(int channel_id,
     return dram_system_->WillAcceptTransactionByChannel(channel_id, is_write);
 }
 
-bool MemorySystem::AddTransaction(uint64_t hex_addr, bool is_write) {
-    return dram_system_->AddTransaction(hex_addr, is_write);
+bool MemorySystem::AddTransaction(uint64_t hex_addr, bool is_write,
+        bool priority) {
+    return dram_system_->AddTransaction(hex_addr, is_write, priority);
 }
 
 void MemorySystem::PrintStats() const { dram_system_->PrintStats(); }
