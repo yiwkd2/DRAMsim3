@@ -10,8 +10,8 @@ INC=-Isrc/ -I$(FMT_LIB_DIR) -I$(INI_LIB_DIR) -I$(ARGS_LIB_DIR) -I$(JSON_LIB_DIR)
 CXXFLAGS=-Wall -O3 -fPIC -std=c++11 $(INC) -DFMT_HEADER_ONLY=1
 #CXXFLAGS=-Wall -g3 -fPIC -std=c++11 $(INC) -DFMT_HEADER_ONLY=1 -DDEBUG_GEM5
 
-#LIB_NAME=libdramsim3.a
-LIB_NAME=libdramsim3.so
+LIB_NAME=libdramsim3.a
+#LIB_NAME=libdramsim3.so
 EXE_NAME=dramsim3main.out
 
 SRCS = src/bankstate.cc src/channel_state.cc src/command_queue.cc src/common.cc \
@@ -31,8 +31,8 @@ $(EXE_NAME): $(EXE_OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 $(LIB_NAME): $(OBJECTS)
-#	ar -rcs	$@ $^
-	$(CXX) -g -shared -Wl,-soname,$@ -o $@ $^	
+	ar -rcs	$@ $^
+#	$(CXX) -g -shared -Wl,-soname,$@ -o $@ $^	
            
 %.o : %.cc
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
