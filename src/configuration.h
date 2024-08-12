@@ -34,6 +34,7 @@ enum class RefreshPolicy {
 class Config {
    public:
     Config(std::string config_file, std::string out_dir);
+    uint64_t XORing(uint64_t hex_addr, unsigned start_bit, unsigned shift) const;
     Address AddressMapping(uint64_t hex_addr) const;
     // DRAM physical structure
     DRAMProtocol protocol;
@@ -135,6 +136,7 @@ class Config {
     int sref_threshold;
     bool aggressive_precharging_enabled;
     bool enable_hbm_dual_cmd;
+    bool enable_channel_hashing;
 
 
     int epoch_period;

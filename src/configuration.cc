@@ -32,15 +32,39 @@ Config::Config(std::string config_file, std::string out_dir)
     delete (reader_);
 }
 
+uint64_t Config::XORing(uint64_t hex_addr, unsigned start_bit, unsigned shift) const {
+    unsigned output = 0;
+    while (start_bit < 34) {
+        output ^= ((hex_addr >> start_bit) & ((1UL << shift) - 1));
+        start_bit += shift;
+    }
+    return output;
+}
+
 Address Config::AddressMapping(uint64_t hex_addr) const {
-    hex_addr >>= shift_bits;
-    int channel = (hex_addr >> ch_pos) & ch_mask;
-    int rank = (hex_addr >> ra_pos) & ra_mask;
-    int bg = (hex_addr >> bg_pos) & bg_mask;
-    int ba = (hex_addr >> ba_pos) & ba_mask;
-    int ro = (hex_addr >> ro_pos) & ro_mask;
-    int co = (hex_addr >> co_pos) & co_mask;
-    return Address(channel, rank, bg, ba, ro, co);
+    if (enable_channel_hashing) {
+        int channel = XORing(hex_addr, shift_bits + ch_pos,
+                LogBase2(channels));
+        int bg = XORing(hex_addr, shift_bits + bg_pos,
+                LogBase2(bankgroups));
+        int ba = XORing(hex_addr, shift_bits + ba_pos,
+                LogBase2(banks_per_group));
+
+        hex_addr >>= shift_bits;
+        int rank = (hex_addr >> ra_pos) & ra_mask;
+        int ro = (hex_addr >> ro_pos) & ro_mask;
+        int co = (hex_addr >> co_pos) & co_mask;
+        return Address(channel, rank, bg, ba, ro, co);
+    } else {
+        hex_addr >>= shift_bits;
+        int channel = (hex_addr >> ch_pos) & ch_mask;
+        int rank = (hex_addr >> ra_pos) & ra_mask;
+        int bg = (hex_addr >> bg_pos) & bg_mask;
+        int ba = (hex_addr >> ba_pos) & ba_mask;
+        int ro = (hex_addr >> ro_pos) & ro_mask;
+        int co = (hex_addr >> co_pos) & co_mask;
+        return Address(channel, rank, bg, ba, ro, co);
+    }
 }
 
 void Config::CalculateSize() {
@@ -242,6 +266,7 @@ void Config::InitSystemParams() {
     enable_dca = reader.GetBoolean("system", "enable_dca", false); 
     low_thres = reader.GetReal("system", "low_thres", 0.5);
     high_thres = reader.GetReal("system", "high_thres", 0.85);
+    enable_channel_hashing = reader.GetBoolean("system", "channel_hashing", false);
     
     std::string ref_policy =
         reader.Get("system", "refresh_policy", "RANK_LEVEL_STAGGERED");

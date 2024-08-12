@@ -50,7 +50,12 @@ class BaseDRAMSystem {
     Config &config_;
     Timing timing_;
     int total_channels_; /** original DRAMsim3 has this as public, static */
+    int channel_shift_;
     int total_ranks_;
+    int total_bank_groups_;
+    int bank_group_shift_;
+    int total_banks_per_group_;
+    int banks_per_group_shift_;
     int total_banks_;
     uint64_t parallel_cycles_;
     uint64_t serial_cycles_;

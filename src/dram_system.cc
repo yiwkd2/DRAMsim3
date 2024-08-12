@@ -1,6 +1,7 @@
 #include "dram_system.h"
 
 #include <assert.h>
+#include <math.h>
 
 namespace dramsim3 {
 
@@ -17,7 +18,12 @@ BaseDRAMSystem::BaseDRAMSystem(Config &config, const std::string &output_dir,
       config_(config),
       timing_(config_),
       total_channels_(config.channels),
+      channel_shift_(LogBase2(total_channels_)),
       total_ranks_(config.ranks),
+      total_bank_groups_(config.bankgroups),
+      bank_group_shift_(LogBase2(total_bank_groups_)),
+      total_banks_per_group_(config.banks_per_group),
+      banks_per_group_shift_(LogBase2(total_banks_per_group_)),
       total_banks_(config.banks),
 #ifdef THERMAL
       thermal_calc_(config_),
@@ -32,8 +38,13 @@ BaseDRAMSystem::BaseDRAMSystem(Config &config, const std::string &output_dir,
 }
 
 int BaseDRAMSystem::GetChannel(uint64_t hex_addr) const {
-    hex_addr >>= config_.shift_bits;
-    return (hex_addr >> config_.ch_pos) & config_.ch_mask;
+    if (config_.enable_channel_hashing) {
+        return config_.XORing(hex_addr,
+                config_.shift_bits + config_.ch_pos, channel_shift_);
+    } else {
+        hex_addr >>= config_.shift_bits;
+        return (hex_addr >> config_.ch_pos) & config_.ch_mask;
+    }
 }
 
 int BaseDRAMSystem::GetRank(uint64_t hex_addr) const {
@@ -42,11 +53,20 @@ int BaseDRAMSystem::GetRank(uint64_t hex_addr) const {
 }
 
 int BaseDRAMSystem::GetBank(uint64_t hex_addr) const {
-    hex_addr >>= config_.shift_bits;
-    int bg = (hex_addr >> config_.bg_pos) & config_.bg_mask;
-    int ba = (hex_addr >> config_.ba_pos) & config_.ba_mask;
+    if (config_.enable_channel_hashing) {
+        unsigned bg = config_.XORing(hex_addr,
+                config_.shift_bits + config_.bg_pos, bank_group_shift_);
+        unsigned ba = config_.XORing(hex_addr,
+                config_.shift_bits + config_.ba_pos, banks_per_group_shift_);
 
-    return config_.banks_per_group * bg + ba;
+        return config_.banks_per_group * bg * ba;
+    } else {
+        hex_addr >>= config_.shift_bits;
+        int bg = (hex_addr >> config_.bg_pos) & config_.bg_mask;
+        int ba = (hex_addr >> config_.ba_pos) & config_.ba_mask;
+
+        return config_.banks_per_group * bg + ba;
+    }
 }
 
 int BaseDRAMSystem::GetNumChannel() const {
