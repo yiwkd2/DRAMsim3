@@ -59,7 +59,7 @@ int BaseDRAMSystem::GetBank(uint64_t hex_addr) const {
         unsigned ba = config_.XORing(hex_addr,
                 config_.shift_bits + config_.ba_pos, banks_per_group_shift_);
 
-        return config_.banks_per_group * bg * ba;
+        return config_.banks_per_group * bg + ba;
     } else {
         hex_addr >>= config_.shift_bits;
         int bg = (hex_addr >> config_.bg_pos) & config_.bg_mask;
